@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 
 const PADDLE_SIZE: Vec2 = Vec2::new(120.0, 20.0);
+const PADDLE_SPEED: f32 = 500.0;
 
 const GAP_BETWEEN_PADDLE_AND_FLOOR: f32 = 60.0;
 
@@ -14,6 +15,12 @@ fn main()
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
+        .add_systems(
+            FixedUpdate,
+            (
+                move_paddle,
+            ).chain(),
+        )
         .run();
 }
 
@@ -44,6 +51,30 @@ fn setup(
     ));
 
 }
+
+fn move_paddle(
+    keyboard_input : Res<ButtonInput<KeyCode>>,
+    mut paddle_transform: Single<&mut Transform, With<Paddle>>,
+    time: Res<Time>,
+)
+{
+    let mut direction = 0.0;
+
+    if keyboard_input.pressed(KeyCode::ArrowLeft)
+    {
+        direction -= 1.0;
+    }
+
+    if keyboard_input.pressed(KeyCode::ArrowRight)
+    {
+        direction += 1.0;
+    }
+
+    let new_paddle_position = paddle_transform.translation.x + direction * PADDLE_SPEED * time.delta_secs();
+
+    paddle_transform.translation.x = new_paddle_position;
+
+} 
 // #[derive(Component)]
 // struct Person;
 
